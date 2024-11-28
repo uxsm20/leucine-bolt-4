@@ -1,15 +1,14 @@
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { XMarkIcon, Bars3Icon } from '@heroicons/react/24/outline';
 
 interface Props {
-  children: React.ReactNode;
   sidebarOpen: boolean;
-  onCloseSidebar: (state: boolean) => void;
+  setSidebarOpen: (state: boolean) => void;
   onLogout: () => void;
 }
 
-export const Layout: React.FC<Props> = ({ children, sidebarOpen, onCloseSidebar, onLogout }) => {
+export const Layout: React.FC<Props> = ({ sidebarOpen, setSidebarOpen, onLogout }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -22,7 +21,7 @@ export const Layout: React.FC<Props> = ({ children, sidebarOpen, onCloseSidebar,
 
   const handleLogout = () => {
     onLogout();
-    navigate('/signin');
+    navigate('/login');
   };
 
   const isActionPage = location.pathname.includes('/execute') || 
@@ -39,7 +38,7 @@ export const Layout: React.FC<Props> = ({ children, sidebarOpen, onCloseSidebar,
             <button
               type="button"
               className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              onClick={() => onCloseSidebar(sidebarOpen ? false : true)}
+              onClick={() => setSidebarOpen(!sidebarOpen)}
             >
               <Bars3Icon className="h-6 w-6" />
             </button>
@@ -64,7 +63,7 @@ export const Layout: React.FC<Props> = ({ children, sidebarOpen, onCloseSidebar,
           {/* Background overlay */}
           <div 
             className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 transition-opacity" 
-            onClick={() => onCloseSidebar(false)}
+            onClick={() => setSidebarOpen(false)}
           />
           
           {/* Sidebar panel */}
@@ -74,7 +73,7 @@ export const Layout: React.FC<Props> = ({ children, sidebarOpen, onCloseSidebar,
               <button
                 type="button"
                 className="rounded-md text-gray-400 hover:text-gray-500"
-                onClick={() => onCloseSidebar(false)}
+                onClick={() => setSidebarOpen(false)}
               >
                 <XMarkIcon className="h-6 w-6" />
               </button>
@@ -92,7 +91,7 @@ export const Layout: React.FC<Props> = ({ children, sidebarOpen, onCloseSidebar,
                         ? 'bg-gray-100 text-gray-900'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     } group flex items-center px-4 py-2 text-base font-medium rounded-md`}
-                    onClick={() => onCloseSidebar(false)}
+                    onClick={() => setSidebarOpen(false)}
                   >
                     {item.name}
                   </Link>
@@ -115,7 +114,7 @@ export const Layout: React.FC<Props> = ({ children, sidebarOpen, onCloseSidebar,
       {/* Main content */}
       <div className="flex-1 pt-16">
         <main className="py-6 px-4 sm:px-6 lg:px-8">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>
