@@ -56,6 +56,10 @@ export const ScheduleForm: React.FC<Props> = ({
         timeSlots,
         assignedPersonnel: [],
         status: 'active',
+        activityStatus: activityStatus === 'production-ongoing' 
+          ? { type: 'production-ongoing', batchId: selectedBatch }
+          : { type: 'idle' },
+        nextSession: new Date(startDate)
       };
       
       await onSubmit(schedule);
