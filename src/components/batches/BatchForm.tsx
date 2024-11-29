@@ -1,44 +1,59 @@
 import React, { useState } from 'react';
-import { FormSelect } from '../shared/forms/FormSelect';
-import { FormInput } from '../shared/forms/FormInput';
 import { FormCard } from '../shared/forms/FormCard';
+import { FormInput } from '../shared/forms/FormInput';
+import { FormSelect } from '../shared/forms/FormSelect';
 import { DEMO_PRODUCTS } from '../../data/demo';
 
 interface Props {
-  onSubmit: (data: any) => void;
+  onSubmit: (data: {
+    number: string;
+    productId: string;
+    startDate: Date;
+    endDate: Date;
+  }) => void;
   onCancel: () => void;
 }
 
 export const BatchForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
-  const [productId, setProductId] = useState('');
   const [batchNumber, setBatchNumber] = useState('');
+  const [productId, setProductId] = useState('');
   const [startDate, setStartDate] = useState('');
-  const [expectedEndDate, setExpectedEndDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const batchData = {
-      productId,
+    onSubmit({
       number: batchNumber,
+      productId,
       startDate: new Date(startDate),
-      expectedEndDate: new Date(expectedEndDate),
-      status: 'in-progress'
-    };
-    onSubmit(batchData);
+      endDate: new Date(endDate)
+    });
   };
+
+  const isStartDateValid = startDate !== '';
+  const isEndDateValid = endDate !== '' && new Date(endDate) > new Date(startDate);
 
   return (
     <FormCard
-      title="Create New Batch"
+      title="Create Batch"
       onSubmit={handleSubmit}
       onCancel={onCancel}
-      isSubmitDisabled={!productId || !batchNumber || !startDate || !expectedEndDate}
+      submitLabel="Create Batch"
+      isSubmitting={false}
     >
       <div className="space-y-6">
+        <FormInput
+          label="Batch Number"
+          value={batchNumber}
+          onChange={(value: string) => setBatchNumber(value)}
+          required
+          placeholder="Enter batch number"
+        />
+
         <FormSelect
           label="Product"
           value={productId}
-          onChange={setProductId}
+          onChange={(value: string) => setProductId(value)}
           options={DEMO_PRODUCTS.map(product => ({
             value: product.id,
             label: product.name
@@ -47,29 +62,21 @@ export const BatchForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
         />
 
         <FormInput
-          label="Batch Number"
-          value={batchNumber}
-          onChange={e => setBatchNumber(e.target.value)}
-          placeholder="Enter batch number"
-          required
-        />
-
-        <FormInput
           type="datetime-local"
           label="Start Date"
           value={startDate}
-          onChange={e => setStartDate(e.target.value)}
+          onChange={(value: string) => setStartDate(value)}
           required
         />
 
         <FormInput
           type="datetime-local"
-          label="Expected End Date"
-          value={expectedEndDate}
-          onChange={e => setExpectedEndDate(e.target.value)}
+          label="End Date"
+          value={endDate}
+          onChange={(value: string) => setEndDate(value)}
           required
-          helperText={startDate && expectedEndDate && new Date(expectedEndDate) <= new Date(startDate) ? 
-            "End date must be after start date" : undefined}
+          error={!isEndDateValid && endDate !== '' ? "End date must be after start date" : undefined}
+          helperText={!isStartDateValid ? "Set start date first" : undefined}
         />
       </div>
     </FormCard>

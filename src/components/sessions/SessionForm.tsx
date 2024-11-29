@@ -39,7 +39,6 @@ export const SessionForm: React.FC<Props> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const sessionData: Partial<MonitoringSession> = {
-      monitoringType: 'settle-plate',
       samplingPoints: selectedPoints,
       scheduledTime: new Date(scheduledTime),
       activityStatus: activityStatus === 'production-ongoing' 
@@ -54,13 +53,18 @@ export const SessionForm: React.FC<Props> = ({
       title="Create Manual Session"
       onSubmit={handleSubmit}
       onCancel={onCancel}
-      isSubmitDisabled={!selectedPoints.length || !scheduledTime}
+      submitLabel="Create Session"
+      isSubmitting={false}
     >
       <div className="space-y-6">
         <FormSelect
           label="Production Area"
           value={selectedArea}
-          onChange={setSelectedArea}
+          onChange={(value: string) => {
+            setSelectedArea(value);
+            setSelectedRooms([]);
+            setSelectedPoints([]);
+          }}
           options={areas.map(area => ({
             value: area.id,
             label: area.name
@@ -76,7 +80,6 @@ export const SessionForm: React.FC<Props> = ({
           }))}
           selectedValues={selectedRooms}
           onChange={setSelectedRooms}
-          disabled={!selectedArea}
           helperText={!selectedArea ? "Select a production area first" : undefined}
         />
 
@@ -88,7 +91,6 @@ export const SessionForm: React.FC<Props> = ({
           }))}
           selectedValues={selectedPoints}
           onChange={setSelectedPoints}
-          disabled={!selectedRooms.length}
           helperText={!selectedRooms.length ? "Select at least one room first" : undefined}
         />
 
@@ -96,14 +98,14 @@ export const SessionForm: React.FC<Props> = ({
           type="datetime-local"
           label="Scheduled Time"
           value={scheduledTime}
-          onChange={e => setScheduledTime(e.target.value)}
+          onChange={(value: string) => setScheduledTime(value)}
           required
         />
 
         <FormSelect
           label="Activity Status"
           value={activityStatus}
-          onChange={setActivityStatus}
+          onChange={(value: string) => setActivityStatus(value as 'production-ongoing' | 'idle')}
           options={[
             { value: 'idle', label: 'Idle' },
             { value: 'production-ongoing', label: 'Production Ongoing' }
@@ -114,7 +116,7 @@ export const SessionForm: React.FC<Props> = ({
           <FormSelect
             label="Batch"
             value={selectedBatch}
-            onChange={setSelectedBatch}
+            onChange={(value: string) => setSelectedBatch(value)}
             options={DEMO_BATCHES.map(batch => ({
               value: batch.id,
               label: `${batch.number} (${DEMO_PRODUCTS.find(p => p.id === batch.productId)?.name})`
